@@ -55,14 +55,19 @@ func (s *service) Import(ctx context.Context, req *v1.SiteImportReq) (resp *v1.S
 			continue
 		}
 
-		// 确保行数据完整（至少有8列）
-		if len(row) < 8 {
+		// 确保行数据完整（至少有9列：ID,Logo,标题,链接,描述,分类,创建日期,更新日期,状态）
+		if len(row) < 9 {
 			failCount++
 			continue
 		}
 
-		// 解析行数据
-		categoryName := row[4] // 分类名称在第5列（索引4）
+		// 解析行数据，使用字段名而不是序号
+		logo := row[1]        // Logo
+		title := row[2]       // 标题
+		url := row[3]         // 链接
+		description := row[4] // 描述
+		categoryName := row[5] // 分类
+		status := row[8]      // 状态
 
 		// 根据分类名称查找或创建分类
 		category, err := s.categoryRepository.WithContext(ctx).FindOne(s.categoryRepository.WhereByTitle(categoryName))
@@ -71,22 +76,32 @@ func (s *service) Import(ctx context.Context, req *v1.SiteImportReq) (resp *v1.S
 			category, err = s.categoryRepository.WithContext(ctx).Create(&model.StCategory{
 				Title: categoryName,
 				Sort:  0,
+				IsUsed: status == "true" || status == "1", // 根据网站状态设置分类状态
 			})
 			if err != nil {
 				failCount++
 				continue
 			}
+		} else {
+			// 如果分类已存在，且当前网站状态为启用，则确保分类也是启用状态
+			if (status == "true" || status == "1") && !category.IsUsed {
+				_, err = s.categoryRepository.WithContext(ctx).Update(map[string]interface{}{"is_used": true}, s.categoryRepository.WhereByID(category.ID))
+				if err != nil {
+					failCount++
+					continue
+				}
+			}
 		}
 
 		// 创建网站记录
 		_, err = s.siteRepository.WithContext(ctx).Create(&model.StSite{
-			Icon:        row[1], // Logo在第2列
-			Title:       row[2], // 名称简介在第3列
-			URL:         row[3], // 链接在第4列
+			Icon:        logo,
+			Title:       title,
+			URL:         url,
 			CategoryID:  category.ID,
-			Description: "", // Excel中没有描述字段
-			IsUsed:      row[7] == "true" || row[7] == "1", // 状态在第8列
-			Sort:        0,                                 // Excel中没有排序字段
+			Description: description,
+			IsUsed:      status == "true" || status == "1",
+			Sort:        0,
 		})
 
 		if err != nil {

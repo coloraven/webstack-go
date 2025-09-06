@@ -20,7 +20,7 @@ import (
 
 var (
 	sheetName = "Sheet1"
-	headers   = []string{"ID", "Logo", "名称简介", "链接", "分类", "创建日期", "更新日期", "状态"}
+	headers   = []string{"ID", "Logo", "标题", "链接", "描述", "分类", "创建日期", "更新日期", "状态"}
 )
 
 func (s *service) Export(ctx *gin.Context, req *v1.SiteExportReq) (resp *v1.SiteExportResp, err error) {
@@ -44,6 +44,7 @@ func (s *service) Export(ctx *gin.Context, req *v1.SiteExportReq) (resp *v1.Site
 
 	excelFile := excelize.NewFile()
 
+	// 设置表头
 	for i, header := range headers {
 		cell, _ := excelize.CoordinatesToCellName(i+1, 1)
 		if err := excelFile.SetCellValue(sheetName, cell, header); err != nil {
@@ -51,17 +52,21 @@ func (s *service) Export(ctx *gin.Context, req *v1.SiteExportReq) (resp *v1.Site
 		}
 	}
 
+	// 填充数据
 	for i, siteCategory := range siteCategories {
-		row := strconv.Itoa(i + 2)
+		rowNum := i + 2
+		row := strconv.Itoa(rowNum)
 
-		excelFile.SetCellValue(sheetName, "A"+row, siteCategory.StSite.ID)
-		excelFile.SetCellValue(sheetName, "B"+row, siteCategory.StSite.Icon)
-		excelFile.SetCellValue(sheetName, "C"+row, siteCategory.StSite.Title)
-		excelFile.SetCellValue(sheetName, "D"+row, siteCategory.StSite.URL)
-		excelFile.SetCellValue(sheetName, "E"+row, siteCategory.StCategory.Title)
-		excelFile.SetCellValue(sheetName, "F"+row, siteCategory.StSite.CreatedAt)
-		excelFile.SetCellValue(sheetName, "G"+row, siteCategory.StSite.UpdatedAt)
-		excelFile.SetCellValue(sheetName, "H"+row, siteCategory.StSite.IsUsed)
+		// 使用字段名明确对应，避免使用序号
+		excelFile.SetCellValue(sheetName, "A"+row, siteCategory.StSite.ID)           // ID
+		excelFile.SetCellValue(sheetName, "B"+row, siteCategory.StSite.Icon)         // Logo
+		excelFile.SetCellValue(sheetName, "C"+row, siteCategory.StSite.Title)        // 标题
+		excelFile.SetCellValue(sheetName, "D"+row, siteCategory.StSite.URL)          // 链接
+		excelFile.SetCellValue(sheetName, "E"+row, siteCategory.StSite.Description)  // 描述
+		excelFile.SetCellValue(sheetName, "F"+row, siteCategory.StCategory.Title)    // 分类
+		excelFile.SetCellValue(sheetName, "G"+row, siteCategory.StSite.CreatedAt)    // 创建日期
+		excelFile.SetCellValue(sheetName, "H"+row, siteCategory.StSite.UpdatedAt)    // 更新日期
+		excelFile.SetCellValue(sheetName, "I"+row, siteCategory.StSite.IsUsed)       // 状态
 	}
 
 	index, err := excelFile.NewSheet(sheetName)
