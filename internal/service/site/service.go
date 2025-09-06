@@ -42,6 +42,8 @@ type Service interface {
 	Sync(ctx *gin.Context, req *v1.SiteSyncReq) (resp *v1.SiteSyncResp, err error)
 	// Export 导出站点信息
 	Export(ctx *gin.Context, req *v1.SiteExportReq) (resp *v1.SiteExportResp, err error)
+	// Import 从Excel导入站点信息
+	Import(ctx context.Context, req *v1.SiteImportReq) (resp *v1.SiteImportResp, err error)
 }
 
 type service struct {

@@ -106,4 +106,13 @@ type (
 	SiteExportResp struct {
 		File *excelize.File
 	}
+	
+	SiteImportReq struct {
+		File *multipart.FileHeader `form:"file" binding:"required"`
+	}
+	
+	SiteImportResp struct {
+		SuccessCount int `json:"successCount"` // 成功导入数量
+		FailCount    int `json:"failCount"`    // 导入失败数量
+	}
 )

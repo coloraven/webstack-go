@@ -87,6 +87,21 @@ func (mr *MockServiceMockRecorder) Export(ctx, req any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Export", reflect.TypeOf((*MockService)(nil).Export), ctx, req)
 }
 
+// Import mocks base method.
+func (m *MockService) Import(ctx context.Context, req *v1.SiteImportReq) (*v1.SiteImportResp, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Import", ctx, req)
+	ret0, _ := ret[0].(*v1.SiteImportResp)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Import indicates an expected call of Import.
+func (mr *MockServiceMockRecorder) Import(ctx, req any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Import", reflect.TypeOf((*MockService)(nil).Import), ctx, req)
+}
+
 // List mocks base method.
 func (m *MockService) List(ctx context.Context, req *v1.SiteListReq) (*v1.SiteListResp, error) {
 	m.ctrl.T.Helper()

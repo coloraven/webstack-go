@@ -40,6 +40,9 @@
                         <a class="btn btn-primary m-r-5" href="/admin/site/add"><i class="mdi mdi-plus"></i> 新增</a>
                         <button class="btn btn-success m-r-5" id="exportBtn"><i class="mdi mdi-download"></i> 导出
                         </button>
+                        <button class="btn btn-info m-r-5" id="importBtn"><i class="mdi mdi-upload"></i> 导入
+                        </button>
+                        <input type="file" id="importFile" accept=".xlsx" style="display: none;">
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="form-group m-b-0">
@@ -223,7 +226,7 @@
                                 '                                           data-title="' + value.title + '"' +
                                 '                                           data-description="' + value.description + '"' +
                                 '                                           data-category_id="' + value.category_id + '"' +
-                                '                                           data-sort_order="' + value.sort + '"' + <!-- 新增排序数据 -->
+                                '                                           data-sort_order="' + value.sort + '"' + // 新增排序数据
                                 '                                           data-toggle="tooltip" data-original-title="编辑">编辑</a>' +
                                 '</div>' +
                                 '</td>' +
@@ -246,53 +249,33 @@
         $(document).on('click', '.btn-sync', function () {
             const id = $(this).attr('data-id');
             const business_title = $(this).attr('data-title');
-            $.confirm({
-                title: '谨慎操作',
-                content: '确认要 <strong style="color: red">一键同步 </strong>：' + business_title + ' 吗？',
-                icon: 'mdi mdi-alert',
-                animation: 'scale',
-                closeAnimation: 'zoom',
-                buttons: {
-                    okay: {
-                        text: '确认',
-                        keys: ['enter'],
-                        btnClass: 'btn-orange',
-                        action: function () {
-                            AjaxForm(
-                                "GET",
-                                '/api/admin/site/sync/' + id,
-                                "",
-                                function () {
-                                },
-                                function (data) {
-                                    $.alert({
-                                        title: '操作成功',
-                                        icon: 'mdi mdi-check-decagram',
-                                        type: 'green',
-                                        content: '编号：' + data.id + ' 已同步。',
-                                        buttons: {
-                                            okay: {
-                                                text: '关闭',
-                                                action: function () {
-                                                    const currentPage = document.querySelector('.page-link.pageActive').textContent;
-                                                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
-                                                }
-                                            }
-                                        }
-                                    });
-                                },
-                                function (response) {
-                                    AjaxError(response);
+            AjaxForm(
+                "GET",
+                '/api/admin/site/sync/' + id,
+                "",
+                function () {
+                },
+                function (data) {
+                    $.alert({
+                        title: '操作成功',
+                        icon: 'mdi mdi-check-decagram',
+                        type: 'green',
+                        content: '编号：' + data.id + ' 已同步。',
+                        buttons: {
+                            okay: {
+                                text: '关闭',
+                                action: function () {
+                                    const currentPage = document.querySelector('.page-link.pageActive').textContent;
+                                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
                                 }
-                            );
+                            }
                         }
-                    },
-                    cancel: {
-                        text: '取消',
-                        keys: ['ctrl', 'shift'],
-                    }
+                    });
+                },
+                function (response) {
+                    AjaxError(response);
                 }
-            });
+            );
         });
         // 详情
         $(document).on('click', '.btn-detail', function () {
@@ -324,53 +307,33 @@
                 id: id,
                 is_used: wantUsed,
             };
-            $.confirm({
-                title: '谨慎操作',
-                content: '确认要 <strong style="color: red">' + tipMessage + '</strong> 吗？',
-                icon: 'mdi mdi-alert',
-                animation: 'scale',
-                closeAnimation: 'zoom',
-                buttons: {
-                    okay: {
-                        text: '确认',
-                        keys: ['enter'],
-                        btnClass: 'btn-orange',
-                        action: function () {
-                            AjaxForm(
-                                "PUT",
-                                "/api/admin/site/" + id,
-                                patchData,
-                                function () {
-                                },
-                                function (data) {
-                                    $.alert({
-                                        title: '操作成功',
-                                        icon: 'mdi mdi-check-decagram',
-                                        type: 'green',
-                                        content: '编号：' + data.id + ' 已' + tipMessage + '。',
-                                        buttons: {
-                                            okay: {
-                                                text: '关闭',
-                                                action: function () {
-                                                    const currentPage = document.querySelector('.page-link.pageActive').textContent;
-                                                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
-                                                }
-                                            }
-                                        }
-                                    });
-                                },
-                                function (response) {
-                                    AjaxError(response);
+            AjaxForm(
+                "PUT",
+                "/api/admin/site/" + id,
+                patchData,
+                function () {
+                },
+                function (data) {
+                    $.alert({
+                        title: '操作成功',
+                        icon: 'mdi mdi-check-decagram',
+                        type: 'green',
+                        content: '编号：' + data.id + ' 已' + tipMessage + '。',
+                        buttons: {
+                            okay: {
+                                text: '关闭',
+                                action: function () {
+                                    const currentPage = document.querySelector('.page-link.pageActive').textContent;
+                                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
                                 }
-                            );
+                            }
                         }
-                    },
-                    cancel: {
-                        text: '取消',
-                        keys: ['ctrl', 'shift'],
-                    }
+                    });
+                },
+                function (response) {
+                    AjaxError(response);
                 }
-            });
+            );
         });
         // 删除
         $(document).on('click', '.btn-confirm', function () {
@@ -466,7 +429,7 @@
                     '<div>' +
                     '  <label>排序</label>' +
                     '  <small class="help-block">(相同分类下网站排序)</small>' +
-                    '  <input autofocus="" type="number"  placeholder="请输入排序值" class="form-control"  id="sort_order" value="' + sort + '">' + <!-- 新增排序输入框 -->
+                    '  <input autofocus="" type="number"  placeholder="请输入排序值" class="form-control"  id="sort_order" value="' + sort + '">' + //<!-- 新增排序输入框 -->
                     '</div>',
                 onOpen: function () {
                     // bootstrap-fileinput 初始化引导文件输入插件
@@ -582,10 +545,98 @@
         $(document).on('click', '.btn-search', function () {
             getPageListData(0, 0, $("#search-keyword").val(), $("#category-filter").val())
         })
-    })
-</script>
-<script>
-    $(document).ready(function () {
+
+        // 导入按钮点击事件
+        $(document).on('click', '#importBtn', function () {
+            $('#importFile').click(); // 触发文件选择
+        });
+
+        // 文件选择后触发导入
+        $('#importFile').on('change', function (e) {
+            const file = e.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            // 检查文件类型
+            const fileName = file.name.toLowerCase();
+            if (!fileName.endsWith('.xlsx')) {
+                $.alert({
+                    title: '文件格式错误',
+                    icon: 'mdi mdi-alert',
+                    type: 'red',
+                    content: '请选择Excel文件(.xlsx)',
+                });
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            $.confirm({
+                title: '确认导入',
+                content: '确认要导入选中的Excel文件吗？',
+                icon: 'mdi mdi-alert',
+                animation: 'scale',
+                closeAnimation: 'zoom',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        keys: ['enter'],
+                        btnClass: 'btn-orange',
+                        action: function () {
+                            importData(formData);
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        keys: ['ctrl', 'shift'],
+                    }
+                }
+            });
+        });
+
+        function importData(formData) {
+            $.ajax({
+                url: "/api/admin/site/import",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function() {
+                    // 可以在这里添加加载提示
+                }, 
+                success: function (json_response) {
+                    $.alert({
+                        title: '导入完成',
+                        icon: 'mdi mdi-check-decagram',
+                        type: 'green',
+                        content: '成功导入 ' + json_response.successCount + ' 条数据，失败 ' + json_response.failCount + ' 条',
+                        buttons: {
+                            okay: {
+                                text: '关闭',
+                                action: function () {
+                                    // 重新加载页面数据
+                                    getPageListData();
+                                    // 清空文件选择
+                                    $('#importFile').val('');
+                                }
+                            }
+                        }
+                    });
+                
+            },
+                error: function (xhr, status, error) {
+                    $.alert({
+                        title: '导入失败',
+                        icon: 'mdi mdi-alert',
+                        type: 'red',
+                        content: '导入文件时发生错误：' + error,
+                    });
+                }
+            });
+        }
+
         $(document).on('click', '#exportBtn', function () {
             const searchKeyword = $("#search-keyword").val();
             exportData(searchKeyword);            // 发起导出请求
@@ -626,7 +677,7 @@
                 }
             });
         }
-    });
+    })
 </script>
 </body>
 </html>

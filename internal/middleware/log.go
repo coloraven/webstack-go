@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"time"
+	"strings"
 
 	"github.com/duke-git/lancet/v2/cryptor"
 	"github.com/duke-git/lancet/v2/random"
@@ -15,6 +16,11 @@ import (
 
 func RequestLogMiddleware(logger *log.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		if strings.Contains(ctx.Request.URL.Path, "/api/admin/site/import") {
+			// 不记录该路径的详细日志
+			ctx.Next()
+			return
+		}
 		// The configuration is initialized once per request
 		uuid, err := random.UUIdV4()
 		if err != nil {
@@ -40,6 +46,11 @@ func RequestLogMiddleware(logger *log.Logger) gin.HandlerFunc {
 
 func ResponseLogMiddleware(logger *log.Logger) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		if strings.Contains(ctx.Request.URL.Path, "/api/admin/site/import") {
+			// 不记录该路径的详细日志
+			ctx.Next()
+			return
+		}
 		blw := &bodyLogWriter{body: bytes.NewBufferString(""), ResponseWriter: ctx.Writer}
 		ctx.Writer = blw
 		startTime := time.Now()
@@ -58,3 +69,4 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
 }
+
