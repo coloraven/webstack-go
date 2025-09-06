@@ -183,6 +183,20 @@ func (mr *MockISysConfigDaoMockRecorder) WhereBySiteTitle(siteTitle any) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WhereBySiteTitle", reflect.TypeOf((*MockISysConfigDao)(nil).WhereBySiteTitle), siteTitle)
 }
 
+// WhereBySiteURL mocks base method.
+func (m *MockISysConfigDao) WhereBySiteURL(siteURL string) func(gen.Dao) gen.Dao {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WhereBySiteURL", siteURL)
+	ret0, _ := ret[0].(func(gen.Dao) gen.Dao)
+	return ret0
+}
+
+// WhereBySiteURL indicates an expected call of WhereBySiteURL.
+func (mr *MockISysConfigDaoMockRecorder) WhereBySiteURL(siteURL any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WhereBySiteURL", reflect.TypeOf((*MockISysConfigDao)(nil).WhereBySiteURL), siteURL)
+}
+
 // WithContext mocks base method.
 func (m *MockISysConfigDao) WithContext(ctx context.Context) iCustomGenSysConfigFunc {
 	m.ctrl.T.Helper()

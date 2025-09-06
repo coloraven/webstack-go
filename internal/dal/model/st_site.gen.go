@@ -11,6 +11,7 @@ import (
 const TableNameStSite = "st_site"
 
 // StSite mapped from table <st_site>
+// 注意：category_id 和 url 字段组合具有唯一约束 (idx_category_url)
 type StSite struct {
 	ID          int        `gorm:"column:id;type:INTEGER;primaryKey" json:"id"`
 	CategoryID  int        `gorm:"column:category_id;type:int(11)" json:"category_id"`
@@ -29,3 +30,15 @@ type StSite struct {
 func (*StSite) TableName() string {
 	return TableNameStSite
 }
+
+// StSiteWithIndex 带联合唯一索引的网站模型
+type StSiteWithIndex struct {
+	*StSite
+}
+
+// TableName StSiteWithIndex's table name
+func (*StSiteWithIndex) TableName() string {
+	return TableNameStSite
+}
+
+// +gorm:uniqueIndex:idx_category_url,option:category_id;url

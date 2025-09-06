@@ -120,6 +120,9 @@ func autoMigrateAndInitialize(db *gorm.DB) {
 		os.Exit(0)
 	}
 
+	// 添加category_id和url的组合唯一约束
+	addStSiteUniqueConstraint(db)
+
 	_, err = query.SysUser.WithContext(ctx).
 		Where(
 			query.SysUser.ID.Eq(1),
@@ -168,4 +171,12 @@ func autoMigrateAndInitialize(db *gorm.DB) {
 	}
 
 	fmt.Println("success initialize")
+}
+
+// 为st_site表添加category_id和url的组合唯一约束
+func addStSiteUniqueConstraint(db *gorm.DB) {
+	// SQLite添加唯一约束的方法
+	if err := db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_category_url ON st_site (category_id, url)").Error; err != nil {
+		fmt.Printf("Failed to create unique index: %v\n", err)
+	}
 }
