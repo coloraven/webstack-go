@@ -44,6 +44,12 @@ type Service interface {
 	Export(ctx *gin.Context, req *v1.SiteExportReq) (resp *v1.SiteExportResp, err error)
 	// Import 从Excel导入站点信息
 	Import(ctx context.Context, req *v1.SiteImportReq) (resp *v1.SiteImportResp, err error)
+	// SyncAll 批量同步站点信息
+	SyncAll(ctx *gin.Context, req *v1.SiteBatchReq) (resp *v1.SiteBatchResp, err error)
+	// ToggleAll 批量启用/禁用站点
+	ToggleAllSimple(ctx *gin.Context, req *v1.SiteBatchReq) (resp *v1.SiteBatchResp, err error)
+	// ClearAll 批量清空站点
+	ClearAllSimple(ctx *gin.Context, req *v1.SiteBatchReq) (resp *v1.SiteBatchResp, err error)
 }
 
 type service struct {

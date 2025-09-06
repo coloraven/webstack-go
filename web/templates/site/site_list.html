@@ -64,6 +64,13 @@
                         <button class="btn btn-info m-r-5" id="importBtn"><i class="mdi mdi-upload"></i> 导入
                         </button>
                         <input type="file" id="importFile" accept=".xlsx" style="display: none;">
+                        <div class="batch-action-divider"></div>
+                        <div class="batch-actions">
+                            <button class="btn btn-info m-r-5" id="syncAllBtn">全部同步</button>
+                            <button class="btn btn-success m-r-5" id="enableAllBtn">全部启用</button>
+                            <button class="btn btn-warning m-r-5" id="disableAllBtn">全部禁用</button>
+                            <button class="btn btn-danger m-r-5" id="clearAllBtn">全部清空</button>
+                        </div>
                     </div>
                     <div class="d-flex align-items-center">
                         <div class="form-group m-b-0">
@@ -684,6 +691,180 @@
                 }
             });
         }
+        
+        // 全部同步按钮点击事件
+        $(document).on('click', '#syncAllBtn', function () {
+            $.confirm({
+                title: '谨慎操作',
+                content: '确认要 <strong style="color: red">全部同步</strong> 吗？',
+                icon: 'mdi mdi-alert',
+                animation: 'scale',
+                closeAnimation: 'zoom',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        keys: ['enter'],
+                        btnClass: 'btn-orange',
+                        action: function () {
+                            // 获取当前搜索和分类筛选条件
+                            const searchKeyword = $("#search-keyword").val();
+                            const categoryId = $("#category-filter").val();
+                            const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            AjaxForm(
+                                "POST",
+                                "/api/admin/site/sync-all",
+                                {search: searchKeyword, category_id: categoryId},
+                                function () {
+                                },
+                                function (data) {
+                                    showFloatingMessage('已同步 ' + data.successCount + ' 个网站，失败 ' + data.failCount + ' 个');
+                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                },
+                                function (response) {
+                                    AjaxError(response);
+                                }
+                            );
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        keys: ['ctrl', 'shift'],
+                    }
+                }
+            });
+        });
+        
+        // 全部启用按钮点击事件
+        $(document).on('click', '#enableAllBtn', function () {
+            $.confirm({
+                title: '谨慎操作',
+                content: '确认要 <strong style="color: red">全部启用</strong> 吗？',
+                icon: 'mdi mdi-alert',
+                animation: 'scale',
+                closeAnimation: 'zoom',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        keys: ['enter'],
+                        btnClass: 'btn-orange',
+                        action: function () {
+                            // 获取当前搜索和分类筛选条件
+                            const searchKeyword = $("#search-keyword").val();
+                            const categoryId = $("#category-filter").val();
+                            const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            AjaxForm(
+                                "POST",
+                                "/api/admin/site/toggle-all",
+                                {search: searchKeyword, category_id: categoryId, is_used: true},
+                                function () {
+                                },
+                                function (data) {
+                                    showFloatingMessage('已启用 ' + data.successCount + ' 个网站');
+                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                },
+                                function (response) {
+                                    AjaxError(response);
+                                }
+                            );
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        keys: ['ctrl', 'shift'],
+                    }
+                }
+            });
+        });
+        
+        // 全部禁用按钮点击事件
+        $(document).on('click', '#disableAllBtn', function () {
+            $.confirm({
+                title: '谨慎操作',
+                content: '确认要 <strong style="color: red">全部禁用</strong> 吗？',
+                icon: 'mdi mdi-alert',
+                animation: 'scale',
+                closeAnimation: 'zoom',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        keys: ['enter'],
+                        btnClass: 'btn-orange',
+                        action: function () {
+                            // 获取当前搜索和分类筛选条件
+                            const searchKeyword = $("#search-keyword").val();
+                            const categoryId = $("#category-filter").val();
+                            const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            AjaxForm(
+                                "POST",
+                                "/api/admin/site/toggle-all",
+                                {search: searchKeyword, category_id: categoryId, is_used: false},
+                                function () {
+                                },
+                                function (data) {
+                                    showFloatingMessage('已禁用 ' + data.successCount + ' 个网站');
+                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                },
+                                function (response) {
+                                    AjaxError(response);
+                                }
+                            );
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        keys: ['ctrl', 'shift'],
+                    }
+                }
+            });
+        });
+        
+        // 全部清空按钮点击事件
+        $(document).on('click', '#clearAllBtn', function () {
+            $.confirm({
+                title: '谨慎操作',
+                content: '确认要 <strong style="color: red">清空全部</strong> 吗？此操作不可恢复！',
+                icon: 'mdi mdi-alert',
+                animation: 'scale',
+                closeAnimation: 'zoom',
+                buttons: {
+                    okay: {
+                        text: '确认',
+                        keys: ['enter'],
+                        btnClass: 'btn-red',
+                        action: function () {
+                            // 获取当前搜索和分类筛选条件
+                            const searchKeyword = $("#search-keyword").val();
+                            const categoryId = $("#category-filter").val();
+                            const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            AjaxForm(
+                                "POST",
+                                "/api/admin/site/clear-all",
+                                {search: searchKeyword, category_id: categoryId},
+                                function () {
+                                },
+                                function (data) {
+                                    showFloatingMessage('已清空 ' + data.successCount + ' 个网站');
+                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                },
+                                function (response) {
+                                    AjaxError(response);
+                                }
+                            );
+                        }
+                    },
+                    cancel: {
+                        text: '取消',
+                        keys: ['ctrl', 'shift'],
+                    }
+                }
+            });
+        });
+        
+        // 移除原有的按钮文字更新逻辑，因为我们现在有独立的启用和禁用按钮
     })
 </script>
 </body>

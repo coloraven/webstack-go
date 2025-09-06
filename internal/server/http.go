@@ -134,6 +134,10 @@ func NewHTTPServer(
 			strictAuthRouter.PUT("/site/:id", siteHandler.Update)
 			strictAuthRouter.GET("/site/export", siteHandler.Export)
 			strictAuthRouter.POST("/site/import", siteHandler.Import)
+			// 新增的批量操作接口
+			strictAuthRouter.POST("/site/sync-all", siteHandler.SyncAll)
+			strictAuthRouter.POST("/site/toggle-all", siteHandler.ToggleAll)
+			strictAuthRouter.POST("/site/clear-all", siteHandler.ClearAll)
 			// Config
 			strictAuthRouter.GET("/config", configHandler.Config)
 			strictAuthRouter.PUT("/config", configHandler.Update)

@@ -82,9 +82,22 @@ type (
 		File        *multipart.FileHeader `json:"file" form:"file"`               // 上传 logo 图片
 		Sort        int                   `json:"sort" form:"sort"`               // 排序
 	}
-
+	
 	SiteUpdateResp struct {
-		ID int `json:"id"` // 主键ID
+		ID int `json:"id"` // ID
+	}
+)
+
+type (
+	SiteBatchReq struct {
+		Search     string `json:"search" form:"search"`      // 搜索关键字
+		CategoryID int    `json:"category_id" form:"category_id"` // 分类ID
+		IsUsed     bool   `json:"is_used" form:"is_used"`    // 是否启用 (用于ToggleAll)
+	}
+	
+	SiteBatchResp struct {
+		SuccessCount int `json:"successCount"` // 成功处理的数量
+		FailCount    int `json:"failCount"`    // 处理失败的数量
 	}
 )
 
