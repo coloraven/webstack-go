@@ -41,6 +41,13 @@
             z-index: 9999;
             display: none;
         }
+        
+        /* 页面大小选择器样式 */
+        .page-size-selector {
+            display: inline-block;
+            width: auto;
+            margin-left: 10px;
+        }
     </style>
 </head>
 
@@ -97,7 +104,18 @@
                             <tbody class="tbody"></tbody>
                         </table>
                     </div>
-                    <ul class="pagination" id="paginationDiv"></ul>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <label for="page-size-selector">每页显示:</label>
+                            <select id="page-size-selector" class="form-control page-size-selector">
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                        </div>
+                        <ul class="pagination m-b-0" id="paginationDiv"></ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -123,12 +141,23 @@
     $(document).ready(function () {
         // 加载分类选项
         loadCategories();
+        
         // 监听分类选择器的变化
         $(document).on('change', '#category-filter', function () {
             const categoryId = $(this).val(); // 获取选中的分类ID
             const searchKeyword = $("#search-keyword").val(); // 获取搜索关键字
-            getPageListData(1, 10, searchKeyword, categoryId); // 重新加载数据
+            const pageSize = parseInt($("#page-size-selector").val()); // 获取页面大小
+            getPageListData(1, pageSize, searchKeyword, categoryId); // 重新加载数据
         });
+        
+        // 监听页面大小选择器的变化
+        $(document).on('change', '#page-size-selector', function () {
+            const pageSize = parseInt($(this).val());
+            const searchKeyword = $("#search-keyword").val();
+            const categoryId = $("#category-filter").val();
+            getPageListData(1, pageSize, searchKeyword, categoryId); // 重新加载数据
+        });
+        
         // 加载列表页数据
         getPageListData();
 
@@ -174,6 +203,10 @@
             if (parseInt(page_size) < 1) {
                 page_size = 10;
             }
+            
+            // 更新页面大小选择器的值
+            $("#page-size-selector").val(page_size);
+            
             AjaxForm(
                 "GET",
                 url,
@@ -198,7 +231,7 @@
                             nextCls: 'pageNext',
                             callback: function (api) {
                                 $(".tbody").html("");
-                                getPageListData(api.getCurrent(), 10, $("#search-keyword").val(), $("#category-filter").val());
+                                getPageListData(api.getCurrent(), page_size, $("#search-keyword").val(), $("#category-filter").val());
                             }
                         });
                         $(".tbody").html("");
@@ -287,7 +320,8 @@
                 function (data) {
                     showFloatingMessage('编号：' + data.id + ' 已同步。');
                     const currentPage = document.querySelector('.page-link.pageActive').textContent;
-                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
+                    const pageSize = parseInt($("#page-size-selector").val());
+                    getPageListData(parseInt(currentPage), pageSize, document.getElementById('search-keyword').value, $("#category-filter").val());
                 },
                 function (response) {
                     AjaxError(response);
@@ -333,7 +367,8 @@
                 function (data) {
                     showFloatingMessage('编号：' + data.id + ' 已' + tipMessage + '。');
                     const currentPage = document.querySelector('.page-link.pageActive').textContent;
-                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
+                    const pageSize = parseInt($("#page-size-selector").val());
+                    getPageListData(parseInt(currentPage), pageSize, document.getElementById('search-keyword').value, $("#category-filter").val());
                 },
                 function (response) {
                     AjaxError(response);
@@ -364,7 +399,8 @@
                                 function (data) {
                                     showFloatingMessage('编号：' + data.id + ' 已删除。');
                                     const currentPage = document.querySelector('.page-link.pageActive').textContent;
-                                    getPageListData(parseInt(currentPage), 10, document.getElementById('search-keyword').value, $("#category-filter").val());
+                                    const pageSize = parseInt($("#page-size-selector").val());
+                                    getPageListData(parseInt(currentPage), pageSize, document.getElementById('search-keyword').value, $("#category-filter").val());
                                 },
                                 function (response) {
                                     AjaxError(response);
@@ -509,7 +545,8 @@
                                 function (data) {
                                     showFloatingMessage('编号：' + data.id + ' 修改完成。');
                                     const currentPage = $(".page-link.pageActive").text(); // 获取当前页码
-                                    getPageListData(currentPage, 10, $("#search-keyword").val(), $("#category-filter").val()); // 重新加载当前页数据
+                                    const pageSize = parseInt($("#page-size-selector").val());
+                                    getPageListData(currentPage, pageSize, $("#search-keyword").val(), $("#category-filter").val()); // 重新加载当前页数据
                                 },
                                 function (response) {
                                     AjaxError(response);
@@ -524,7 +561,8 @@
         });
         // 搜索
         $(document).on('click', '.btn-search', function () {
-            getPageListData(0, 0, $("#search-keyword").val(), $("#category-filter").val())
+            const pageSize = parseInt($("#page-size-selector").val());
+            getPageListData(1, pageSize, $("#search-keyword").val(), $("#category-filter").val())
         })
 
         // 导入按钮点击事件
@@ -590,7 +628,8 @@
                 success: function (json_response) {
                     showFloatingMessage('成功导入 ' + json_response.successCount + ' 条数据，失败 ' + json_response.failCount + ' 条');
                     // 重新加载页面数据
-                    getPageListData();
+                    const pageSize = parseInt($("#page-size-selector").val());
+                    getPageListData(1, pageSize);
                     // 清空文件选择
                     $('#importFile').val('');
                 },
