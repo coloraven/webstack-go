@@ -21,6 +21,9 @@ func (s *service) ToggleAllSimple(ctx *gin.Context, req *v1.SiteBatchReq) (resp 
 	if req.CategoryID != 0 {
 		whereFunc = append(whereFunc, s.siteRepository.WhereByCategoryID(req.CategoryID))
 	}
+	if req.Status != nil {
+		whereFunc = append(whereFunc, s.siteRepository.WhereByIsUsed(*req.Status == 1))
+	}
 
 	// 批量更新网站状态
 	updateData := map[string]interface{}{
@@ -101,6 +104,9 @@ func (s *service) ClearAllSimple(ctx *gin.Context, req *v1.SiteBatchReq) (resp *
 	}
 	if req.CategoryID != 0 {
 		whereFunc = append(whereFunc, s.siteRepository.WhereByCategoryID(req.CategoryID))
+	}
+	if req.Status != nil {
+		whereFunc = append(whereFunc, s.siteRepository.WhereByIsUsed(*req.Status == 1))
 	}
 
 	// 如果没有提供任何条件，则清空所有记录

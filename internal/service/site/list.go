@@ -29,6 +29,9 @@ func (s *service) List(ctx context.Context, req *v1.SiteListReq) (resp *v1.SiteL
 		whereFunc = append(whereFunc, s.siteRepository.WhereByCategoryID(req.CategoryID))
 		orderColumns = []field.Expr{query.StSite.Sort.Asc()} // 同分类网址按排序升序
 	}
+	if req.Status != nil {
+		whereFunc = append(whereFunc, s.siteRepository.WhereByIsUsed(*req.Status == 1))
+	}
 
 	var siteCategories []repository.SiteCategory
 	count, err := s.siteRepository.WithContext(ctx).FindSiteCategoryWithPage(req.Page, req.PageSize, &siteCategories, orderColumns, whereFunc...)
@@ -60,5 +63,5 @@ func (s *service) List(ctx context.Context, req *v1.SiteListReq) (resp *v1.SiteL
 			CurrentPage:  req.Page,
 			PerPageCount: req.PageSize,
 		},
-	}, err
+	}, nil
 }

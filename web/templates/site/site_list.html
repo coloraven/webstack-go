@@ -84,6 +84,13 @@
                             </select>
                         </div>
                         <div class="form-group m-b-0 m-l-10">
+                            <select class="form-control selectpicker" id="status-filter">
+                                <option value="1">启用</option>
+                                <option value="0">禁用</option>
+                                <option value="">全部</option>
+                            </select>
+                        </div>
+                        <div class="form-group m-b-0 m-l-10">
                             <button class="btn btn-outline-success btn-search" type="submit">搜索</button>
                         </div>
                     </div>
@@ -203,7 +210,7 @@
         }
 
         // 获取分页数据的函数
-        function getPageListData(page = 1, page_size = 10, search = null, category_id = null, url = "/api/admin/site") {
+        function getPageListData(page = 1, page_size = 10, search = null, category_id = null, status = null, url = "/api/admin/site") {
             if (parseInt(page) < 1) {
                 page = 1;
             }
@@ -214,10 +221,17 @@
             // 更新页面大小选择器的值
             $("#page-size-selector").val(page_size);
             
+            // 构建请求参数
+            const params = {page: page, page_size: page_size, search: search, category_id: category_id};
+            // 只有当status不为null时才添加到参数中
+            if (status !== null) {
+                params.status = status;
+            }
+            
             AjaxForm(
                 "GET",
                 url,
-                {page: page, page_size: page_size, search: search, category_id: category_id},
+                params,
                 function () {
                 },
                 function (data) {
@@ -238,7 +252,15 @@
                             nextCls: 'pageNext',
                             callback: function (api) {
                                 $(".tbody").html("");
-                                getPageListData(api.getCurrent(), page_size, $("#search-keyword").val(), $("#category-filter").val());
+                                // 获取当前筛选条件
+                                const currentSearch = $("#search-keyword").val();
+                                const currentCategoryId = $("#category-filter").val();
+                                const currentStatus = $("#status-filter").val();
+                                let currentStatusValue = null;
+                                if (currentStatus !== "") {
+                                    currentStatusValue = parseInt(currentStatus);
+                                }
+                                getPageListData(api.getCurrent(), page_size, currentSearch, currentCategoryId, currentStatusValue);
                             }
                         });
                         $(".tbody").html("");
@@ -566,12 +588,28 @@
                 }
             });
         });
-        // 搜索
-        $(document).on('click', '.btn-search', function () {
+        // 搜索按钮点击事件
+        $(document).on('click', '.btn-search', function (e) {
+            e.preventDefault();
+            const searchKeyword = $("#search-keyword").val();
+            const categoryId = $("#category-filter").val();
+            const status = $("#status-filter").val();
             const pageSize = parseInt($("#page-size-selector").val());
-            getPageListData(1, pageSize, $("#search-keyword").val(), $("#category-filter").val())
-        })
-
+            
+            // 只有当状态不是"全部"时才传递status参数
+            let statusValue = null;
+            if (status !== "") {
+                statusValue = parseInt(status);
+            }
+            
+            getPageListData(1, pageSize, searchKeyword, categoryId, statusValue);
+        });
+        
+        // 状态筛选下拉框改变事件
+        $(document).on('change', '#status-filter', function() {
+            $('.btn-search').click();
+        });
+        
         // 导入按钮点击事件
         $(document).on('click', '#importBtn', function () {
             $('#importFile').click(); // 触发文件选择
@@ -752,17 +790,29 @@
                             // 获取当前搜索和分类筛选条件
                             const searchKeyword = $("#search-keyword").val();
                             const categoryId = $("#category-filter").val();
+                            const status = $("#status-filter").val();
                             const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            // 构建请求参数
+                            const params = {search: searchKeyword, category_id: categoryId, is_used: true};
+                            // 只有当状态不是"全部"时才传递status参数
+                            if (status !== "") {
+                                params.status = parseInt(status);
+                            }
                             
                             AjaxForm(
                                 "POST",
                                 "/api/admin/site/toggle-all",
-                                {search: searchKeyword, category_id: categoryId, is_used: true},
+                                params,
                                 function () {
                                 },
                                 function (data) {
                                     showFloatingMessage('已启用 ' + data.successCount + ' 个网站');
-                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                    let statusValue = null;
+                                    if (status !== "") {
+                                        statusValue = parseInt(status);
+                                    }
+                                    getPageListData(1, pageSize, searchKeyword, categoryId, statusValue);
                                 },
                                 function (response) {
                                     AjaxError(response);
@@ -795,17 +845,29 @@
                             // 获取当前搜索和分类筛选条件
                             const searchKeyword = $("#search-keyword").val();
                             const categoryId = $("#category-filter").val();
+                            const status = $("#status-filter").val();
                             const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            // 构建请求参数
+                            const params = {search: searchKeyword, category_id: categoryId, is_used: false};
+                            // 只有当状态不是"全部"时才传递status参数
+                            if (status !== "") {
+                                params.status = parseInt(status);
+                            }
                             
                             AjaxForm(
                                 "POST",
                                 "/api/admin/site/toggle-all",
-                                {search: searchKeyword, category_id: categoryId, is_used: false},
+                                params,
                                 function () {
                                 },
                                 function (data) {
                                     showFloatingMessage('已禁用 ' + data.successCount + ' 个网站');
-                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                    let statusValue = null;
+                                    if (status !== "") {
+                                        statusValue = parseInt(status);
+                                    }
+                                    getPageListData(1, pageSize, searchKeyword, categoryId, statusValue);
                                 },
                                 function (response) {
                                     AjaxError(response);
@@ -838,17 +900,29 @@
                             // 获取当前搜索和分类筛选条件
                             const searchKeyword = $("#search-keyword").val();
                             const categoryId = $("#category-filter").val();
+                            const status = $("#status-filter").val();
                             const pageSize = parseInt($("#page-size-selector").val());
+                            
+                            // 构建请求参数
+                            const params = {search: searchKeyword, category_id: categoryId};
+                            // 只有当状态不是"全部"时才传递status参数
+                            if (status !== "") {
+                                params.status = parseInt(status);
+                            }
                             
                             AjaxForm(
                                 "POST",
                                 "/api/admin/site/clear-all",
-                                {search: searchKeyword, category_id: categoryId},
+                                params,
                                 function () {
                                 },
                                 function (data) {
                                     showFloatingMessage('已清空 ' + data.successCount + ' 个网站');
-                                    getPageListData(1, pageSize, searchKeyword, categoryId);
+                                    let statusValue = null;
+                                    if (status !== "") {
+                                        statusValue = parseInt(status);
+                                    }
+                                    getPageListData(1, pageSize, searchKeyword, categoryId, statusValue);
                                 },
                                 function (response) {
                                     AjaxError(response);

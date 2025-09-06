@@ -67,6 +67,9 @@ func (s *service) buildQueryConditions(req *v1.SiteBatchReq) []func(dao gen.Dao)
 	if req.CategoryID != 0 {
 		whereFunc = append(whereFunc, s.siteRepository.WhereByCategoryID(req.CategoryID))
 	}
+	if req.Status != nil {
+		whereFunc = append(whereFunc, s.siteRepository.WhereByIsUsed(*req.Status == 1))
+	}
 	return whereFunc
 }
 

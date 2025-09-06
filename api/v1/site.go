@@ -47,6 +47,7 @@ type (
 		PageSize   int    `form:"page_size,default=10" ` // 每页显示条数
 		Search     string `form:"search"`                // 搜索关键字
 		CategoryID int    `form:"category_id"`           // 分类ID
+		Status     *int   `form:"status"`                // 状态: 1-启用, 0-禁用
 	}
 
 	SiteListResp struct {
@@ -93,6 +94,7 @@ type (
 		Search     string `json:"search" form:"search"`      // 搜索关键字
 		CategoryID int    `json:"category_id" form:"category_id"` // 分类ID
 		IsUsed     bool   `json:"is_used" form:"is_used"`    // 是否启用 (用于ToggleAll)
+		Status     *int   `json:"status" form:"status"`      // 状态: 1-启用, 0-禁用
 	}
 	
 	SiteBatchResp struct {
